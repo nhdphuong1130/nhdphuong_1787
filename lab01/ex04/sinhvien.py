@@ -5,4 +5,4 @@ class SinhVien:
         self._sex = sex
         self._major = major
         self._diemtb = diemtb
-        self._hocluc = ""
+        self._xeploai = ""
