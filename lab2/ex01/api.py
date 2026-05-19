@@ -1,0 +1,58 @@
+# ...existing code...
+from flask import Flask, request, jsonify
+from cipher.caesar import CaesarCipher
+app = Flask(__name__)
+
+#CAESAR CIPHER ALGORITHM
+caesar_cipher = CaesarCipher()
+
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({
+        "message": "Caesar cipher API",
+        "endpoints": {
+            "encrypt": {
+                "path": "/api/caesar/encrypt",
+                "method": "POST",
+                "body": {"plain_text": "TEXT", "key": 3}
+            },
+            "decrypt": {
+                "path": "/api/caesar/decrypt",
+                "method": "POST",
+                "body": {"cipher_text": "TEXT", "key": 3}
+            }
+        }
+    })
+
+
+@app.route("/api/caesar/encrypt", methods=["POST"])
+def caesar_encrypt():
+    data = request.get_json(force=True, silent=True)
+    if not data or 'plain_text' not in data or 'key' not in data:
+        return jsonify({"error": "missing 'plain_text' or 'key' in JSON body"}), 400
+    try:
+        plain_text = data['plain_text']
+        key = int(data['key'])
+    except (ValueError, TypeError):
+        return jsonify({"error": "'key' must be an integer"}), 400
+    encrypted_text = caesar_cipher.encrypt_text(plain_text, key)
+    return jsonify({'encrypted_message': encrypted_text})
+
+
+@app.route("/api/caesar/decrypt", methods=["POST"])
+def caesar_decrypt():
+    data = request.get_json(force=True, silent=True)
+    if not data or 'cipher_text' not in data or 'key' not in data:
+        return jsonify({"error": "missing 'cipher_text' or 'key' in JSON body"}), 400
+    try:
+        cipher_text = data['cipher_text']
+        key = int(data['key'])
+    except (ValueError, TypeError):
+        return jsonify({"error": "'key' must be an integer"}), 400
+    decrypted_text = caesar_cipher.decrypt_text(cipher_text, key)
+    return jsonify({'decrypted_message': decrypted_text})
+
+#main function
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
+# ...existing code...
